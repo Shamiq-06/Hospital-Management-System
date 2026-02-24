@@ -108,7 +108,7 @@ exports.deleteUser = async (req, res, next) => {
       await DoctorProfile.findOneAndDelete({ user: user._id });
     }
 
-    await user.remove();
+    await User.findByIdAndDelete(user._id);
 
     res.status(200).json({
       status: 'success',

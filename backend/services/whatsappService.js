@@ -9,13 +9,24 @@ class WhatsAppService {
     this.accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
   }
 
+  // Check if WhatsApp credentials are real
+  isConfigured() {
+    return (
+      this.accessToken &&
+      this.phoneNumberId &&
+      !this.accessToken.includes('your_') &&
+      !this.phoneNumberId.includes('your_')
+    );
+  }
+
   // Send WhatsApp message
   async sendMessage(to, message, notificationType, metadata = {}) {
+    let notification;
     try {
       // Format phone number (remove any non-digit characters and ensure it has country code)
       const formattedPhone = to.replace(/\D/g, '');
 
-      const notification = await Notification.create({
+      notification = await Notification.create({
         recipient: metadata.userId,
         recipientPhone: formattedPhone,
         notificationType,
@@ -24,6 +35,17 @@ class WhatsAppService {
         status: 'pending',
         metadata: metadata
       });
+
+      // ── DEMO MODE: credentials not configured ─────────────────────────────
+      if (!this.isConfigured()) {
+        logger.info(`[WhatsApp DEMO] To: +${formattedPhone}`);
+        logger.info(`[WhatsApp DEMO] Message:\n${message}`);
+        notification.status = 'demo';
+        notification.sentAt = new Date();
+        await notification.save();
+        return { success: true, demo: true, notificationId: notification._id };
+      }
+      // ── REAL WHATSAPP API ─────────────────────────────────────────────────
 
       const url = `${this.apiUrl}/${this.phoneNumberId}/messages`;
 

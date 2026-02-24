@@ -83,6 +83,7 @@ export const appointmentAPI = {
 export const paymentAPI = {
   createPayment: (data) => api.post('/payments/create', data),
   executePayment: (data) => api.post('/payments/execute', data),
+  completeDemo: (id) => api.post(`/payments/${id}/complete-demo`),
   getPaymentById: (id) => api.get(`/payments/${id}`),
   getUserPayments: (params) => api.get('/payments', { params }),
   verifyPayment: (id) => api.get(`/payments/${id}/verify`),

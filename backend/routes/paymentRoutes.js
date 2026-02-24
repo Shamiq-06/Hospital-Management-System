@@ -9,6 +9,7 @@ router.use(protect);
 
 router.post('/create', authorize('patient'), paymentController.createPayment);
 router.post('/execute', authorize('patient'), paymentController.executePayment);
+router.post('/:id/complete-demo', authorize('patient'), validateId, validate, paymentController.completeDemo);
 router.get('/', paymentController.getUserPayments);
 router.get('/:id', validateId, validate, paymentController.getPaymentById);
 router.get('/:id/verify', validateId, validate, paymentController.verifyPayment);

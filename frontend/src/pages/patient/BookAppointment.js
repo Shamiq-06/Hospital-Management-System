@@ -97,9 +97,19 @@ const BookAppointment = () => {
 
       // Initiate payment
       const paymentResponse = await paymentAPI.createPayment({ appointmentId });
+      const pd = paymentResponse.data.data;
 
-      // Redirect to PayPal
-      window.location.href = paymentResponse.data.data.approvalUrl;
+      // Demo portal mode (PayPal credentials not configured)
+      if (pd.demoPortal) {
+        navigate(
+          `/payment/portal?paymentId=${pd.paymentRecordId}&amount=${pd.amount}` +
+          `&doctor=${encodeURIComponent(pd.doctorName)}&spec=${encodeURIComponent(pd.specialization)}`
+        );
+        return;
+      }
+
+      // Redirect to real PayPal
+      window.location.href = pd.approvalUrl;
     } catch (error) {
       setMessage({
         type: 'error',

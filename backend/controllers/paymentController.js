@@ -5,6 +5,19 @@ const User = require('../models/User');
 const { AppError } = require('../middleware/errorHandler');
 const paypalService = require('../services/paypalService');
 const whatsappService = require('../services/whatsappService');
+const logger = require('../utils/logger');
+
+// Check if PayPal credentials are real (not placeholders)
+const isPayPalConfigured = () => {
+  const clientId = process.env.PAYPAL_CLIENT_ID;
+  const clientSecret = process.env.PAYPAL_CLIENT_SECRET;
+  return (
+    clientId &&
+    clientSecret &&
+    !clientId.includes('your_') &&
+    !clientSecret.includes('your_')
+  );
+};
 
 // @desc    Create payment (initiate PayPal payment)
 // @route   POST /api/payments/create
@@ -35,6 +48,35 @@ exports.createPayment = async (req, res, next) => {
 
     const amount = appointment.doctorProfile.consultationFee;
     const description = `Consultation with Dr. ${appointment.doctor.firstName} ${appointment.doctor.lastName} - ${appointment.doctorProfile.specialization}`;
+
+    // ── DEMO PORTAL MODE: PayPal credentials not configured ──────────────────
+    if (!isPayPalConfigured()) {
+      // Create a PENDING payment record — will be completed via demo portal
+      const pendingPayment = await Payment.create({
+        appointment: appointmentId,
+        patient: req.user.id,
+        doctor: appointment.doctor._id,
+        amount,
+        currency: 'USD',
+        paymentMethod: 'paypal',
+        paymentStatus: 'pending',
+        transactionId: `DEMO-${Date.now()}`
+      });
+
+      return res.status(201).json({
+        status: 'success',
+        data: {
+          demoPortal: true,
+          paymentRecordId: pendingPayment._id,
+          amount,
+          doctorName: `Dr. ${appointment.doctor.firstName} ${appointment.doctor.lastName}`,
+          specialization: appointment.doctorProfile.specialization,
+          appointmentDate: appointment.appointmentDate,
+          appointmentTime: appointment.appointmentTime
+        }
+      });
+    }
+    // ── REAL PAYPAL ───────────────────────────────────────────────────────────
 
     // Create PayPal payment
     const paymentResult = await paypalService.createPayment(
@@ -239,6 +281,69 @@ exports.refundPayment = async (req, res, next) => {
       data: {
         payment: refundResult.paymentRecord
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Complete demo payment (used when real PayPal is not configured)
+// @route   POST /api/payments/:id/complete-demo
+// @access  Private (Patient)
+exports.completeDemo = async (req, res, next) => {
+  try {
+    const payment = await Payment.findById(req.params.id);
+
+    if (!payment) {
+      return next(new AppError('Payment record not found', 404));
+    }
+
+    if (payment.patient.toString() !== req.user.id) {
+      return next(new AppError('Not authorized', 403));
+    }
+
+    if (payment.paymentStatus === 'completed') {
+      return next(new AppError('Payment already completed', 400));
+    }
+
+    // Mark payment as completed
+    payment.paymentStatus = 'completed';
+    payment.paymentDate = new Date();
+    payment.receipt = { receiptNumber: `RCP${Date.now()}` };
+    await payment.save();
+
+    // Update appointment
+    const appointment = await Appointment.findById(payment.appointment)
+      .populate('patient', 'firstName lastName phoneNumber')
+      .populate('doctor', 'firstName lastName')
+      .populate('doctorProfile', 'specialization consultationFee');
+
+    if (appointment) {
+      appointment.payment = payment._id;
+      appointment.isPaid = true;
+      appointment.status = 'confirmed';
+      await appointment.save();
+
+      // Send WhatsApp notifications (demo-aware — won't throw)
+      try {
+        await whatsappService.sendPaymentConfirmation(
+          payment,
+          appointment.patient,
+          appointment
+        );
+        await whatsappService.sendAppointmentConfirmation(
+          appointment,
+          appointment.doctor,
+          appointment.patient
+        );
+      } catch (err) {
+        logger.error('WhatsApp notification failed:', err.message);
+      }
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: { payment, appointment }
     });
   } catch (error) {
     next(error);

@@ -96,7 +96,7 @@ exports.searchDoctors = async (req, res, next) => {
 // @access  Private (Patient)
 exports.getDoctorDetails = async (req, res, next) => {
   try {
-    const doctor = await DoctorProfile.findById(req.params.id)
+    const doctor = await DoctorProfile.findOne({ user: req.params.id })
       .populate('user', 'firstName lastName email phoneNumber');
 
     if (!doctor) {

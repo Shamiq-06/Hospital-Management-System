@@ -8,6 +8,9 @@ import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Home from './pages/Home';
+import PaymentSuccess from './pages/PaymentSuccess';
+import PaymentCancel from './pages/PaymentCancel';
+import PaymentPortal from './pages/PaymentPortal';
 
 // Patient Pages
 import PatientDashboard from './pages/patient/PatientDashboard';
@@ -39,6 +42,9 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/payment/success" element={<PaymentSuccess />} />
+            <Route path="/payment/cancel" element={<PaymentCancel />} />
+            <Route path="/payment/portal" element={<PaymentPortal />} />
 
             {/* Patient Routes */}
             <Route

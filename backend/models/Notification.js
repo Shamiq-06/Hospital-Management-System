@@ -26,7 +26,7 @@ const notificationSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'sent', 'failed', 'delivered', 'read'],
+    enum: ['pending', 'sent', 'failed', 'delivered', 'read', 'demo'],
     default: 'pending'
   },
   whatsappMessageId: String,
