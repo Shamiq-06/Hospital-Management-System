@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useSearchParams, useNavigate, Link } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { paymentAPI } from '../utils/api';
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
   const [status, setStatus] = useState('processing');
 
   useEffect(() => {
@@ -18,7 +17,7 @@ const PaymentSuccess = () => {
       // Arrived from demo portal (already completed server-side)
       setStatus('success');
     }
-  }, []);
+  }, [searchParams]);
 
   const executePayment = async (paymentId, payerId) => {
     try {
@@ -65,16 +64,20 @@ const PaymentSuccess = () => {
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f7fa', padding: '40px 20px' }}>
-      <div style={{ maxWidth: '500px', margin: '0 auto' }}>
+    <div className="page">
+      <div className="page-narrow" style={{ maxWidth: '500px' }}>
 
         {/* Success banner */}
-        <div style={{
-          background: 'linear-gradient(135deg, #38a169 0%, #2f855a 100%)',
-          borderRadius: '16px', padding: '32px', textAlign: 'center',
-          color: 'white', marginBottom: '20px',
-          boxShadow: '0 8px 32px rgba(56,161,105,0.3)',
-        }}>
+        <div
+          className="card card-lg"
+          style={{
+            background:
+              'radial-gradient(120% 140% at 10% 10%, rgba(255,255,255,0.45), transparent 35%), linear-gradient(135deg, #22c55e 0%, #16a34a 100%)',
+            color: 'white',
+            textAlign: 'center',
+            marginBottom: '20px',
+          }}
+        >
           <div style={{ fontSize: '4rem', marginBottom: '12px' }}>✅</div>
           <h1 style={{ fontSize: '1.7rem', fontWeight: '700', marginBottom: '8px' }}>
             Payment Successful!
@@ -83,13 +86,8 @@ const PaymentSuccess = () => {
         </div>
 
         {/* What happens next */}
-        <div style={{
-          background: 'white', borderRadius: '12px', padding: '20px 24px',
-          marginBottom: '16px', boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
-        }}>
-          <h3 style={{ fontWeight: '600', marginBottom: '16px', color: '#2d3748' }}>
-            What happens next?
-          </h3>
+        <div className="card" style={{ marginBottom: '16px' }}>
+          <h3 className="card-header" style={{ marginBottom: '16px' }}>What happens next?</h3>
           {[
             { icon: '📱', title: 'WhatsApp Notification', desc: 'A confirmation message has been sent to your registered WhatsApp number.' },
             { icon: '📅', title: 'Appointment Confirmed', desc: 'Your slot is reserved. Please arrive 10 minutes early.' },
@@ -98,44 +96,41 @@ const PaymentSuccess = () => {
             <div key={title} style={{ display: 'flex', gap: '14px', marginBottom: '16px', alignItems: 'flex-start' }}>
               <div style={{
                 width: '40px', height: '40px', borderRadius: '10px',
-                background: '#ebf4ff', display: 'flex', alignItems: 'center',
+                background: 'rgba(255,255,255,0.55)',
+                border: '1px solid rgba(255,255,255,0.6)',
+                boxShadow: 'var(--clay-shadow-sm)',
+                display: 'flex', alignItems: 'center',
                 justifyContent: 'center', fontSize: '1.2rem', flexShrink: 0,
               }}>
                 {icon}
               </div>
               <div>
-                <div style={{ fontWeight: '600', fontSize: '0.92rem', color: '#2d3748' }}>{title}</div>
-                <div style={{ fontSize: '0.84rem', color: '#718096', marginTop: '2px' }}>{desc}</div>
+                <div style={{ fontWeight: '800', fontSize: '0.92rem' }}>{title}</div>
+                <div style={{ fontSize: '0.84rem', color: 'var(--clay-muted)', marginTop: '2px' }}>{desc}</div>
               </div>
             </div>
           ))}
         </div>
 
         {/* WhatsApp demo notice */}
-        <div style={{
-          background: '#fff8e1', border: '1px solid #ffc107', borderRadius: '10px',
-          padding: '14px 18px', marginBottom: '20px', fontSize: '0.85rem', color: '#744210',
-          display: 'flex', gap: '10px', alignItems: 'flex-start',
-        }}>
+        <div className="alert alert-warning" style={{ marginBottom: '20px', display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
           <span style={{ fontSize: '1.2rem' }}>📲</span>
           <div>
-            <strong>Demo Mode:</strong> WhatsApp credentials are not configured.
-            The appointment confirmation message was logged to the server console and saved in the
-            Notifications database. Add real WhatsApp Cloud API credentials in{' '}
-            <code style={{ background: '#fff3cd', padding: '1px 4px', borderRadius: '3px' }}>backend/.env</code>{' '}
-            to receive actual WhatsApp messages.
+            <strong>Demo Mode:</strong> Booking and payment notifications are generated successfully.
+            In demo setup, messages are routed using the configured demo recipient and also stored in
+            Notifications for tracking.
           </div>
         </div>
 
         {/* CTA */}
         <div style={{ display: 'flex', gap: '12px' }}>
           <Link to="/patient/appointments" style={{ flex: 1 }}>
-            <button className="btn btn-primary" style={{ width: '100%' }}>
+            <button className="btn btn-primary btn-block">
               View My Appointments
             </button>
           </Link>
           <Link to="/patient/dashboard" style={{ flex: 1 }}>
-            <button className="btn btn-secondary" style={{ width: '100%' }}>
+            <button className="btn btn-secondary btn-block">
               Dashboard
             </button>
           </Link>

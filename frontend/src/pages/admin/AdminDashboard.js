@@ -1,6 +1,49 @@
 import React, { useEffect, useState } from 'react';
 import { adminAPI } from '../../utils/api';
 
+const mapStats = (raw) => {
+  if (!raw) {
+    return {
+      totalUsers: 0,
+      totalDoctors: 0,
+      totalPatients: 0,
+      totalAppointments: 0,
+      pendingAppointments: 0,
+      confirmedAppointments: 0,
+      completedAppointments: 0,
+      cancelledAppointments: 0,
+      totalRevenue: 0,
+      completedPayments: 0,
+      pendingPayments: 0,
+      activeUsers: 0,
+      inactiveUsers: 0,
+    };
+  }
+
+  // Supports both flattened and nested backend response shapes
+  const users = raw.users || {};
+  const appointments = raw.appointments || {};
+  const payments = raw.payments || {};
+
+  const totalUsers = raw.totalUsers ?? users.total ?? 0;
+
+  return {
+    totalUsers,
+    totalDoctors: raw.totalDoctors ?? users.doctors ?? 0,
+    totalPatients: raw.totalPatients ?? users.patients ?? 0,
+    totalAppointments: raw.totalAppointments ?? appointments.total ?? 0,
+    pendingAppointments: raw.pendingAppointments ?? appointments.pending ?? 0,
+    confirmedAppointments: raw.confirmedAppointments ?? appointments.confirmed ?? 0,
+    completedAppointments: raw.completedAppointments ?? appointments.completed ?? 0,
+    cancelledAppointments: raw.cancelledAppointments ?? appointments.cancelled ?? 0,
+    totalRevenue: raw.totalRevenue ?? payments.totalRevenue ?? 0,
+    completedPayments: raw.completedPayments ?? payments.completed ?? 0,
+    pendingPayments: raw.pendingPayments ?? payments.pending ?? 0,
+    activeUsers: raw.activeUsers ?? totalUsers,
+    inactiveUsers: raw.inactiveUsers ?? 0,
+  };
+};
+
 const AdminDashboard = () => {
   const [stats, setStats] = useState(null);
   const [analytics, setAnalytics] = useState(null);
@@ -17,8 +60,8 @@ const AdminDashboard = () => {
         adminAPI.getAnalytics(),
       ]);
 
-      setStats(statsResponse.data.data);
-      setAnalytics(analyticsResponse.data.data);
+      setStats(mapStats(statsResponse.data.data));
+      setAnalytics(analyticsResponse.data.data || {});
       setLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -153,7 +196,9 @@ const AdminDashboard = () => {
         <div className="card" style={{ marginTop: '30px' }}>
           <h3 className="card-header">Monthly Revenue</h3>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {analytics.revenueByMonth.map((item) => (
+            {analytics.revenueByMonth.map((item) => {
+              const monthlyRevenue = Number(item.totalRevenue ?? item.revenue ?? 0);
+              return (
               <div
                 key={`${item._id.year}-${item._id.month}`}
                 style={{
@@ -170,9 +215,10 @@ const AdminDashboard = () => {
                     year: 'numeric',
                   })}
                 </span>
-                <strong>${item.totalRevenue.toFixed(2)}</strong>
+                <strong>${monthlyRevenue.toFixed(2)}</strong>
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}

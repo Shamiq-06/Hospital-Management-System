@@ -82,30 +82,21 @@ const PaymentPortal = () => {
 
   /* ── card preview ────────────────────────────────────────────────────────── */
   const CardPreview = () => (
-    <div style={{ perspective: '1000px', height: '200px', marginBottom: '30px' }}>
-      <div style={{
-        position: 'relative', width: '100%', height: '200px',
-        transformStyle: 'preserve-3d',
-        transition: 'transform 0.6s',
-        transform: flipped ? 'rotateY(180deg)' : 'rotateY(0deg)',
-      }}>
+    <div className="pay-card-wrap">
+      <div className={`pay-card ${flipped ? 'is-flipped' : ''}`}>
         {/* Front */}
-        <div style={{
-          position: 'absolute', width: '100%', height: '100%',
-          backfaceVisibility: 'hidden', borderRadius: '16px',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          padding: '24px', color: 'white', boxShadow: '0 8px 32px rgba(102,126,234,0.4)',
-          display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
-        }}>
+        <div className="pay-card-face pay-card-front">
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '1.4rem', fontWeight: '700', letterSpacing: '1px' }}>
+            <span style={{ fontSize: '1.4rem', fontWeight: '800', letterSpacing: '0.02em' }}>
               🏥 Hospital Pay
             </span>
             <span style={{ fontSize: '1.4rem' }}>{brand.icon}</span>
           </div>
           <div>
             <div style={{
-              fontFamily: 'monospace', fontSize: '1.35rem', letterSpacing: '3px',
+              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+              fontSize: '1.35rem',
+              letterSpacing: '0.18em',
               marginBottom: '12px', minHeight: '28px',
             }}>
               {card.number || '•••• •••• •••• ••••'}
@@ -126,20 +117,16 @@ const PaymentPortal = () => {
         </div>
 
         {/* Back */}
-        <div style={{
-          position: 'absolute', width: '100%', height: '100%',
-          backfaceVisibility: 'hidden', borderRadius: '16px',
-          background: 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)',
-          transform: 'rotateY(180deg)',
-          boxShadow: '0 8px 32px rgba(102,126,234,0.4)',
-          overflow: 'hidden',
-        }}>
-          <div style={{ height: '50px', background: '#1a1a2e', margin: '20px 0' }} />
-          <div style={{ padding: '0 24px' }}>
+        <div className="pay-card-face pay-card-back">
+          <div className="pay-card-strip" />
+          <div className="pay-card-cvv">
             <div style={{ fontSize: '0.7rem', color: 'rgba(255,255,255,0.7)', marginBottom: '6px' }}>CVV</div>
             <div style={{
               background: 'white', borderRadius: '4px', padding: '8px 12px',
-              fontFamily: 'monospace', letterSpacing: '5px', fontSize: '1rem', color: '#333',
+              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+              letterSpacing: '0.3em',
+              fontSize: '1rem',
+              color: '#333',
               textAlign: 'right',
             }}>
               {card.cvv ? '•'.repeat(card.cvv.length) : '•••'}
@@ -151,39 +138,30 @@ const PaymentPortal = () => {
   );
 
   return (
-    <div style={{ minHeight: '100vh', background: '#f5f7fa', padding: '40px 20px' }}>
-      <div style={{ maxWidth: '520px', margin: '0 auto' }}>
+    <div className="page">
+      <div className="page-narrow">
 
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <h1 style={{ fontSize: '1.6rem', fontWeight: '700', color: '#2d3748' }}>
-            Secure Payment
-          </h1>
-          <p style={{ color: '#718096', marginTop: '4px' }}>Demo Payment Portal</p>
+        <div className="page-header">
+          <h1 className="page-title">Secure Payment</h1>
+          <p className="page-subtitle">Demo Payment Portal</p>
         </div>
 
         {/* Order summary */}
-        <div style={{
-          background: 'white', borderRadius: '12px', padding: '16px 20px',
-          marginBottom: '20px', boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
-          borderLeft: '4px solid #667eea',
-        }}>
+        <div className="card card-accent" style={{ marginBottom: '20px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <div style={{ fontWeight: '600', color: '#2d3748' }}>{doctor}</div>
-              <div style={{ fontSize: '0.85rem', color: '#718096' }}>{spec} Consultation</div>
+              <div style={{ fontWeight: '800' }}>{doctor}</div>
+              <div style={{ fontSize: '0.85rem', color: 'var(--clay-muted)' }}>{spec} Consultation</div>
             </div>
-            <div style={{ fontSize: '1.6rem', fontWeight: '700', color: '#667eea' }}>
+            <div style={{ fontSize: '1.6rem', fontWeight: '900', color: 'var(--clay-accent)' }}>
               ${amount}
             </div>
           </div>
         </div>
 
         {/* Demo hint */}
-        <div style={{
-          background: '#fff8e1', border: '1px solid #ffc107', borderRadius: '8px',
-          padding: '12px 16px', marginBottom: '20px', fontSize: '0.85rem', color: '#856404',
-        }}>
+        <div className="alert alert-warning" style={{ marginBottom: '20px', fontSize: '0.9rem' }}>
           <strong>🧪 Demo Mode</strong> — Use card number <code style={{ background: '#fff3cd', padding: '1px 4px', borderRadius: '3px' }}>4242 4242 4242 4242</code>,
           any future date (e.g. <code style={{ background: '#fff3cd', padding: '1px 4px', borderRadius: '3px' }}>12/28</code>), any CVV (<code style={{ background: '#fff3cd', padding: '1px 4px', borderRadius: '3px' }}>123</code>)
         </div>
@@ -192,49 +170,38 @@ const PaymentPortal = () => {
         <CardPreview />
 
         {/* Form */}
-        <div style={{
-          background: 'white', borderRadius: '16px', padding: '28px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
-        }}>
+        <div className="card card-lg">
           {apiError && (
-            <div style={{
-              background: '#fff5f5', border: '1px solid #fc8181', borderRadius: '8px',
-              padding: '12px 16px', marginBottom: '20px', color: '#c53030', fontSize: '0.9rem',
-            }}>
-              ❌ {apiError}
-            </div>
+            <div className="alert alert-error">❌ {apiError}</div>
           )}
 
           <form onSubmit={handlePay} noValidate>
             {/* Card Number */}
             <div style={{ marginBottom: '18px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#4a5568', fontSize: '0.9rem' }}>
+              <label className="form-label" style={{ fontSize: '0.9rem' }}>
                 Card Number
               </label>
-              <div style={{ position: 'relative' }}>
+              <div className="input-with-icon">
                 <input
                   type="text"
                   placeholder="4242 4242 4242 4242"
                   value={card.number}
                   onChange={(e) => setCard({ ...card, number: formatCardNumber(e.target.value) })}
                   maxLength={19}
-                  style={{
-                    width: '100%', padding: '12px 44px 12px 14px', border: `1.5px solid ${errors.number ? '#fc8181' : '#e2e8f0'}`,
-                    borderRadius: '8px', fontSize: '1rem', fontFamily: 'monospace',
-                    letterSpacing: '2px', outline: 'none', transition: 'border-color .2s',
-                  }}
+                  className={`form-input input-mono input-spaced ${errors.number ? 'is-error' : ''}`}
+                  style={{ paddingRight: '44px', fontSize: '1rem' }}
                   onFocus={() => setFlipped(false)}
                 />
-                <span style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', fontSize: '1.2rem' }}>
+                <span className="input-icon">
                   {brand.icon}
                 </span>
               </div>
-              {errors.number && <p style={{ color: '#e53e3e', fontSize: '0.8rem', marginTop: '4px' }}>{errors.number}</p>}
+              {errors.number && <p className="form-error">{errors.number}</p>}
             </div>
 
             {/* Cardholder Name */}
             <div style={{ marginBottom: '18px' }}>
-              <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#4a5568', fontSize: '0.9rem' }}>
+              <label className="form-label" style={{ fontSize: '0.9rem' }}>
                 Cardholder Name
               </label>
               <input
@@ -242,20 +209,17 @@ const PaymentPortal = () => {
                 placeholder="John Smith"
                 value={card.name}
                 onChange={(e) => setCard({ ...card, name: e.target.value })}
-                style={{
-                  width: '100%', padding: '12px 14px', border: `1.5px solid ${errors.name ? '#fc8181' : '#e2e8f0'}`,
-                  borderRadius: '8px', fontSize: '1rem', outline: 'none',
-                  textTransform: 'uppercase',
-                }}
+                className={`form-input ${errors.name ? 'is-error' : ''}`}
+                style={{ fontSize: '1rem', textTransform: 'uppercase' }}
                 onFocus={() => setFlipped(false)}
               />
-              {errors.name && <p style={{ color: '#e53e3e', fontSize: '0.8rem', marginTop: '4px' }}>{errors.name}</p>}
+              {errors.name && <p className="form-error">{errors.name}</p>}
             </div>
 
             {/* Expiry + CVV row */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '24px' }}>
               <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#4a5568', fontSize: '0.9rem' }}>
+                <label className="form-label" style={{ fontSize: '0.9rem' }}>
                   Expiry Date
                 </label>
                 <input
@@ -264,17 +228,15 @@ const PaymentPortal = () => {
                   value={card.expiry}
                   onChange={(e) => setCard({ ...card, expiry: formatExpiry(e.target.value) })}
                   maxLength={5}
-                  style={{
-                    width: '100%', padding: '12px 14px', border: `1.5px solid ${errors.expiry ? '#fc8181' : '#e2e8f0'}`,
-                    borderRadius: '8px', fontSize: '1rem', fontFamily: 'monospace', outline: 'none',
-                  }}
+                  className={`form-input input-mono ${errors.expiry ? 'is-error' : ''}`}
+                  style={{ fontSize: '1rem' }}
                   onFocus={() => setFlipped(false)}
                 />
-                {errors.expiry && <p style={{ color: '#e53e3e', fontSize: '0.8rem', marginTop: '4px' }}>{errors.expiry}</p>}
+                {errors.expiry && <p className="form-error">{errors.expiry}</p>}
               </div>
 
               <div>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500', color: '#4a5568', fontSize: '0.9rem' }}>
+                <label className="form-label" style={{ fontSize: '0.9rem' }}>
                   CVV
                 </label>
                 <input
@@ -283,15 +245,12 @@ const PaymentPortal = () => {
                   value={card.cvv}
                   onChange={(e) => setCard({ ...card, cvv: e.target.value.replace(/\D/g, '').slice(0, 4) })}
                   maxLength={4}
-                  style={{
-                    width: '100%', padding: '12px 14px', border: `1.5px solid ${errors.cvv ? '#fc8181' : '#e2e8f0'}`,
-                    borderRadius: '8px', fontSize: '1rem', fontFamily: 'monospace', outline: 'none',
-                    letterSpacing: '4px',
-                  }}
+                  className={`form-input input-mono input-spaced ${errors.cvv ? 'is-error' : ''}`}
+                  style={{ fontSize: '1rem' }}
                   onFocus={() => setFlipped(true)}
                   onBlur={() => setFlipped(false)}
                 />
-                {errors.cvv && <p style={{ color: '#e53e3e', fontSize: '0.8rem', marginTop: '4px' }}>{errors.cvv}</p>}
+                {errors.cvv && <p className="form-error">{errors.cvv}</p>}
               </div>
             </div>
 
@@ -299,14 +258,7 @@ const PaymentPortal = () => {
             <button
               type="submit"
               disabled={paying}
-              style={{
-                width: '100%', padding: '15px',
-                background: paying ? '#a0aec0' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                color: 'white', border: 'none', borderRadius: '10px',
-                fontSize: '1.05rem', fontWeight: '700', cursor: paying ? 'not-allowed' : 'pointer',
-                letterSpacing: '0.5px', transition: 'opacity .2s',
-                boxShadow: paying ? 'none' : '0 4px 15px rgba(102,126,234,0.4)',
-              }}
+              className="btn btn-primary btn-lg btn-block"
             >
               {paying ? (
                 <span>⏳ Processing...</span>
@@ -317,9 +269,9 @@ const PaymentPortal = () => {
           </form>
 
           {/* Security badges */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '16px', marginTop: '16px', flexWrap: 'wrap' }}>
+          <div className="micro-badges">
             {['🔒 SSL Secured', '🛡️ Fraud Protected', '✅ 256-bit Encrypted'].map((badge) => (
-              <span key={badge} style={{ fontSize: '0.72rem', color: '#a0aec0' }}>{badge}</span>
+              <span key={badge}>{badge}</span>
             ))}
           </div>
         </div>

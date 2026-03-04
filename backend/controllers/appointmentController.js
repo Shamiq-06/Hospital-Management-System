@@ -6,6 +6,15 @@ const User = require('../models/User');
 const { AppError } = require('../middleware/errorHandler');
 const whatsappService = require('../services/whatsappService');
 
+const defaultTimeSlots = [
+  { startTime: '09:00', endTime: '10:00', isBooked: false },
+  { startTime: '10:00', endTime: '11:00', isBooked: false },
+  { startTime: '11:00', endTime: '12:00', isBooked: false },
+  { startTime: '14:00', endTime: '15:00', isBooked: false },
+  { startTime: '15:00', endTime: '16:00', isBooked: false },
+  { startTime: '16:00', endTime: '17:00', isBooked: false }
+];
+
 // @desc    Create appointment (booking)
 // @route   POST /api/appointments
 // @access  Private (Patient)
@@ -87,17 +96,77 @@ exports.getDoctorAvailability = async (req, res, next) => {
     const { startDate, endDate } = req.query;
 
     let query = { doctor: doctorId };
+    const now = new Date();
 
     if (startDate || endDate) {
       query.date = {};
-      if (startDate) query.date.$gte = new Date(startDate);
-      if (endDate) query.date.$lte = new Date(endDate);
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        query.date.$gte = start;
+      }
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        query.date.$lte = end;
+      }
     } else {
       // Default to future dates
-      query.date = { $gte: new Date() };
+      query.date = { $gte: now };
     }
 
-    const availability = await AvailabilitySlot.find(query).sort({ date: 1 });
+    let availability = await AvailabilitySlot.find(query).sort({ date: 1 });
+
+    // Auto-generate default slots for demo/dev if doctor has no upcoming availability
+    if (availability.length === 0) {
+      const doctorProfile = await DoctorProfile.findOne({ user: doctorId });
+
+      if (doctorProfile && doctorProfile.isApproved && doctorProfile.isAvailable) {
+        const rangeStart = query.date?.$gte ? new Date(query.date.$gte) : new Date(now);
+        const rangeEnd = query.date?.$lte ? new Date(query.date.$lte) : new Date(now);
+
+        if (!query.date?.$lte) {
+          rangeEnd.setDate(rangeEnd.getDate() + 14);
+        }
+
+        rangeStart.setHours(0, 0, 0, 0);
+        rangeEnd.setHours(23, 59, 59, 999);
+
+        const daysToCreate = [];
+        for (
+          let date = new Date(rangeStart);
+          date <= rangeEnd;
+          date.setDate(date.getDate() + 1)
+        ) {
+          const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+          if (dayOfWeek === 'Sunday') continue;
+
+          daysToCreate.push({
+            date: new Date(date),
+            dayOfWeek
+          });
+        }
+
+        for (const day of daysToCreate) {
+          const exists = await AvailabilitySlot.findOne({
+            doctor: doctorId,
+            date: day.date
+          }).select('_id');
+
+          if (!exists) {
+            await AvailabilitySlot.create({
+              doctor: doctorId,
+              doctorProfile: doctorProfile._id,
+              date: day.date,
+              dayOfWeek: day.dayOfWeek,
+              slots: defaultTimeSlots
+            });
+          }
+        }
+
+        availability = await AvailabilitySlot.find(query).sort({ date: 1 });
+      }
+    }
 
     res.status(200).json({
       status: 'success',

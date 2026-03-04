@@ -87,10 +87,15 @@ const Login = () => {
             Don't have an account? <Link to="/register">Register here</Link>
           </p>
 
-          <div style={{ marginTop: '30px', padding: '15px', background: '#f8f9fa', borderRadius: '6px' }}>
-            <p style={{ fontSize: '0.9rem', fontWeight: '600', marginBottom: '10px' }}>Demo Credentials:</p>
+          <div className="alert alert-info" style={{ marginTop: '22px' }}>
+            <p style={{ fontSize: '0.92rem', fontWeight: '800', marginBottom: '10px' }}>Demo Credentials</p>
             <p style={{ fontSize: '0.85rem', margin: '5px 0' }}>Admin: admin@hospital.com / admin123</p>
             <p style={{ fontSize: '0.85rem', margin: '5px 0' }}>Doctor: dr.smith@hospital.com / doctor123</p>
+            <p style={{ fontSize: '0.85rem', margin: '5px 0' }}>Doctor: dr.taylor@hospital.com / doctor123</p>
+            <p style={{ fontSize: '0.85rem', margin: '5px 0' }}>Doctor: dr.anderson@hospital.com / doctor123</p>
+            <p style={{ fontSize: '0.85rem', margin: '5px 0' }}>Doctor: dr.thomas@hospital.com / doctor123</p>
+            <p style={{ fontSize: '0.85rem', margin: '5px 0' }}>Doctor: dr.martinez@hospital.com / doctor123</p>
+            <p style={{ fontSize: '0.85rem', margin: '5px 0' }}>Doctor: dr.lee@hospital.com / doctor123</p>
             <p style={{ fontSize: '0.85rem', margin: '5px 0' }}>Patient: patient1@example.com / patient123</p>
           </div>
         </div>

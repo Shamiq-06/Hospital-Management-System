@@ -7,6 +7,21 @@ class WhatsAppService {
     this.apiUrl = process.env.WHATSAPP_API_URL;
     this.phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID;
     this.accessToken = process.env.WHATSAPP_ACCESS_TOKEN;
+    this.demoRecipient = process.env.WHATSAPP_DEMO_TO_NUMBER || '';
+    this.defaultCountryCode = (process.env.WHATSAPP_DEFAULT_COUNTRY_CODE || '94').replace(/\D/g, '');
+  }
+
+  normalizePhoneNumber(phone) {
+    const digits = String(phone || '').replace(/\D/g, '');
+
+    if (!digits) return '';
+
+    // Convert local format like 0701273949 -> 94701273949 (using default country code)
+    if (digits.startsWith('0') && digits.length >= 10) {
+      return `${this.defaultCountryCode}${digits.slice(1)}`;
+    }
+
+    return digits;
   }
 
   // Check if WhatsApp credentials are real
@@ -23,8 +38,15 @@ class WhatsAppService {
   async sendMessage(to, message, notificationType, metadata = {}) {
     let notification;
     try {
+      const targetPhone = this.demoRecipient || to;
+      const originalPhone = to;
+
+      if (!targetPhone) {
+        throw new Error('Recipient phone number is missing');
+      }
+
       // Format phone number (remove any non-digit characters and ensure it has country code)
-      const formattedPhone = to.replace(/\D/g, '');
+      const formattedPhone = this.normalizePhoneNumber(targetPhone);
 
       notification = await Notification.create({
         recipient: metadata.userId,
@@ -33,8 +55,16 @@ class WhatsAppService {
         message,
         channel: 'whatsapp',
         status: 'pending',
-        metadata: metadata
+        metadata: {
+          ...metadata,
+          originalRecipientPhone: originalPhone,
+          redirectedToDemoNumber: Boolean(this.demoRecipient)
+        }
       });
+
+      if (this.demoRecipient) {
+        logger.info(`[WhatsApp DEMO ROUTE] Original: ${originalPhone} -> Demo: ${this.demoRecipient}`);
+      }
 
       // ── DEMO MODE: credentials not configured ─────────────────────────────
       if (!this.isConfigured()) {

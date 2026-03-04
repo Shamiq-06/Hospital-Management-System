@@ -43,7 +43,17 @@ const BookAppointment = () => {
         startDate: today,
         endDate: endDate.toISOString().split('T')[0],
       });
-      setAvailability(response.data.data.availability);
+      const fetchedAvailability = response.data.data.availability || [];
+      setAvailability(fetchedAvailability);
+
+      if (fetchedAvailability.length > 0) {
+        const firstDate = fetchedAvailability[0];
+        setSelectedDate(firstDate._id);
+
+        const firstFreeSlot = firstDate.slots?.find((slot) => !slot.isBooked) || null;
+        setSelectedSlot(firstFreeSlot);
+      }
+
       setLoading(false);
     } catch (error) {
       console.error('Error fetching availability:', error);
@@ -202,7 +212,9 @@ const BookAppointment = () => {
                   value={selectedDate}
                   onChange={(e) => {
                     setSelectedDate(e.target.value);
-                    setSelectedSlot(null);
+                    const dateAvailability = availability.find((a) => a._id === e.target.value);
+                    const firstFreeSlot = dateAvailability?.slots?.find((slot) => !slot.isBooked) || null;
+                    setSelectedSlot(firstFreeSlot);
                   }}
                 >
                   <option value="">Choose a date</option>
